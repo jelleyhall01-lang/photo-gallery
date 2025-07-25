@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shared Photo Gallery</title>
+</head>
+<body>
+  <h1>Upload a Photo</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="photo" accept="image/*" required />
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Gallery</h2>
+  <div style="display: flex; flex-wrap: wrap;">
+    <% images.forEach(function(img) { %>
+      <img src="/uploads/<%= img %>" style="width:200px; margin:10px;" />
+    <% }); %>
+  </div>
+</body>
+</html>
