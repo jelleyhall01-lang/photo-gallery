@@ -18,3 +18,12 @@
   </div>
 </body>
 </html>
+<% photos.forEach(function(photo) { %>
+  <div>
+    <img src="/uploads/<%= photo %>" width="200" />
+    <form action="/delete" method="POST" style="margin-top: 5px;">
+      <input type="hidden" name="filename" value="<%= photo %>">
+      <button type="submit">Delete</button>
+    </form>
+  </div>
+<% }) %>

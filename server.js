@@ -4,35 +4,44 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// File upload settings
+// Make sure this line comes early:
+app.use(express.urlencoded({ extended: true }));
+
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+
+// Multer config (upload folder)
 const storage = multer.diskStorage({
-  destination: 'public/uploads/',
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + '-' + file.originalname;
-    cb(null, uniqueName);
-  }
+  destination: './public/uploads/',
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
 });
 const upload = multer({ storage });
 
-// App setup
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-app.set('views', './views');
-
-// Homepage with gallery
+// Routes
 app.get('/', (req, res) => {
-  const imageFiles = fs.readdirSync('./public/uploads');
-  res.render('index', { images: imageFiles });
+  fs.readdir('./public/uploads/', (err, files) => {
+    if (err) throw err;
+    res.render('index', { photos: files });
+  });
 });
 
-// Handle image uploads
 app.post('/upload', upload.single('photo'), (req, res) => {
   res.redirect('/');
 });
 
-// Start server
+// ✅ Here's the delete route that uses form data:
+app.post('/delete', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'uploads', req.body.filename);
+  fs.unlink(filePath, (err) => {
+    if (err) console.error(err);
+    res.redirect('/');
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
